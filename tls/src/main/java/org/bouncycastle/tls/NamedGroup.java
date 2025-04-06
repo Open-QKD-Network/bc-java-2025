@@ -116,6 +116,8 @@ public class NamedGroup
     public static final int MLKEM768 = 0x0201;
     public static final int MLKEM1024 = 0x0202;
 
+    public static final int P521_MLKEM1024 = 0x2f3d; // secp521r1
+
     /* Names of the actual underlying elliptic curves (not necessarily matching the NamedGroup names). */
     private static final String[] CURVE_NAMES = new String[]{ "sect163k1", "sect163r1", "sect163r2", "sect193r1",
         "sect193r2", "sect233k1", "sect233r1", "sect239k1", "sect283k1", "sect283r1", "sect409k1", "sect409r1",
@@ -382,6 +384,8 @@ public class NamedGroup
             return "MLKEM768";
         case MLKEM1024:
             return "MLKEM1024";
+	case P521_MLKEM1024:
+            return "P521_MLKEM1024";
         case arbitrary_explicit_prime_curves:
             return "arbitrary_explicit_prime_curves";
         case arbitrary_explicit_char2_curves:
@@ -451,7 +455,8 @@ public class NamedGroup
     {
         return refersToASpecificGroup(namedGroup)
             || isPrivate(namedGroup)
-            || (namedGroup >= arbitrary_explicit_prime_curves && namedGroup <= arbitrary_explicit_char2_curves);
+            || (namedGroup >= arbitrary_explicit_prime_curves && namedGroup <= arbitrary_explicit_char2_curves)
+            || (namedGroup == P521_MLKEM1024);
     }
 
     public static boolean refersToAnECDHCurve(int namedGroup)

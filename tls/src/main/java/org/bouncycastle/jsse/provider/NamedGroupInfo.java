@@ -81,7 +81,8 @@ class NamedGroupInfo
         OQS_mlkem1024(NamedGroup.OQS_mlkem1024, "ML-KEM"),
         MLKEM512(NamedGroup.MLKEM512, "ML-KEM"),
         MLKEM768(NamedGroup.MLKEM768, "ML-KEM"),
-        MLKEM1024(NamedGroup.MLKEM1024, "ML-KEM");
+        MLKEM1024(NamedGroup.MLKEM1024, "ML-KEM"),
+        P521_MLKEM1024(NamedGroup.P521_MLKEM1024, "EC");
 
         private final int namedGroup;
         private final String name;
@@ -350,7 +351,18 @@ class NamedGroupInfo
 
     static boolean hasLocal(PerConnection perConnection, int namedGroup)
     {
-        return perConnection.local.containsKey(namedGroup);
+        LOG.info("hasLocal, namedGroup:" + namedGroup + ", map:" + perConnection.local);
+        boolean ret;
+        ret = perConnection.local.containsKey(namedGroup);
+        if (ret)
+        {
+            return ret;
+        }
+        // hybrid PQC sos
+        if (namedGroup == NamedGroup.secp521r1 && perConnection.local.containsKey(NamedGroup.P521_MLKEM1024))
+            return true;
+        else
+            return false;
     }
 
     static DefaultedResult selectServerECDH(PerConnection perConnection, int minimumBitsECDH)
@@ -454,6 +466,9 @@ class NamedGroupInfo
                 enabled = false;
             }
         }
+
+        if (namedGroup == NamedGroup.P521_MLKEM1024)
+            enabled = true;
 
         NamedGroupInfo namedGroupInfo = new NamedGroupInfo(all, algorithmParameters, enabled);
 
@@ -626,6 +641,8 @@ class NamedGroupInfo
 
     boolean isActive(BCAlgorithmConstraints algorithmConstraints, boolean post13Active, boolean pre13Active)
     {
+        if (this.all == All.P521_MLKEM1024)
+            return true;
         return enabled
             && ((post13Active && isSupportedPost13()) || (pre13Active && isSupportedPre13()))
             && isPermittedBy(algorithmConstraints);

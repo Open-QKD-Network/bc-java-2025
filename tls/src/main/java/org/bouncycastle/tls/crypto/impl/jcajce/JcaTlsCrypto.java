@@ -1172,6 +1172,10 @@ public class JcaTlsCrypto
             {
                 return Boolean.valueOf(DHUtil.isGroupSupported(this, TlsDHUtils.getNamedDHGroup(namedGroup)));
             }
+            else if (namedGroup == NamedGroup.P521_MLKEM1024) // hybrid PQC
+            {
+                return true;
+            }
         }
         catch (GeneralSecurityException e)
         {

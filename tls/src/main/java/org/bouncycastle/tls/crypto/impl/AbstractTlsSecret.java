@@ -81,7 +81,7 @@ public abstract class AbstractTlsSecret
         return null != data;
     }
 
-    synchronized byte[] copyData()
+    public synchronized byte[] copyData()
     {
         return Arrays.clone(data);
     }

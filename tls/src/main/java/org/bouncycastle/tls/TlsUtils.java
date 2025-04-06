@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.logging.Logger;
 
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1InputStream;
@@ -56,6 +57,7 @@ import org.bouncycastle.util.io.Streams;
  */
 public class TlsUtils
 {
+    private static final Logger LOG = Logger.getLogger(TlsUtils.class.getName());
     private static byte[] DOWNGRADE_TLS11 = Hex.decodeStrict("444F574E47524400");
     private static byte[] DOWNGRADE_TLS12 = Hex.decodeStrict("444F574E47524401");
 
@@ -5350,10 +5352,12 @@ public class TlsUtils
     {
         if (isNullOrEmpty(supportedGroups))
         {
+            LOG.info("Client collectKeyShares with empty supportedGroups");
             return;
         }
         if (null == keyShareGroups || keyShareGroups.isEmpty())
         {
+            LOG.info("Client collectKeyShares with empty supportedGroups");
             return;
         }
 
@@ -5362,10 +5366,12 @@ public class TlsUtils
             int supportedGroup = supportedGroups[i];
             Integer supportedGroupElement = Integers.valueOf(supportedGroup);
 
+            LOG.info("Client collectKeyShares with group:" + supportedGroup + ", keyShareGroups:" + keyShareGroups.toString());
             if (!keyShareGroups.contains(supportedGroupElement)
                 || clientAgreements.containsKey(supportedGroupElement)
                 || !crypto.hasNamedGroup(supportedGroup))
             {
+                LOG.info("Client collectKeyShares with group:" + supportedGroup);
                 continue;
             }
 
@@ -5390,6 +5396,11 @@ public class TlsUtils
                 {
                     agreement = crypto.createKemDomain(new TlsKemConfig(supportedGroup, false)).createKem();
                 }
+            }
+            else if (NamedGroup.P521_MLKEM1024 == supportedGroup) // hybrid-PQC
+            {
+                //agreement = new org.bouncycastle.tls.crypto.impl.jcajce.JceTlsECDHPQC(
+                //    crypto.createECDomain(new TlsECConfig(NamedGroup.secp521r1)).createECDH(), supportedGroup, true);
             }
 
             if (null != agreement)
@@ -5419,6 +5430,7 @@ public class TlsUtils
     static KeyShareEntry selectKeyShare(TlsCrypto crypto, ProtocolVersion negotiatedVersion, Vector clientShares,
         int[] clientSupportedGroups, int[] serverSupportedGroups)
     {
+        LOG.info("selectKeyShare: clientShares:" + clientShares);
         if (null != clientShares && !isNullOrEmpty(clientSupportedGroups) && !isNullOrEmpty(serverSupportedGroups))
         {
             for (int i = 0; i < clientShares.size(); ++i)
@@ -5426,21 +5438,30 @@ public class TlsUtils
                 KeyShareEntry clientShare = (KeyShareEntry)clientShares.elementAt(i);
 
                 int group = clientShare.getNamedGroup();
+                LOG.info("selectKeyShare: clientShare group:" + group);
 
                 if (!NamedGroup.canBeNegotiated(group, negotiatedVersion))
                 {
+                    LOG.info("selectKeyShare: clientShare group can not be negotiaed with version " + negotiatedVersion);
                     continue;
                 }
 
                 if (!Arrays.contains(serverSupportedGroups, group) ||
                     !Arrays.contains(clientSupportedGroups, group))
                 {
+                    LOG.info("selectKeyShare:group is not in client/server supported groups");
                     continue;
                 }
 
                 if (!crypto.hasNamedGroup(group))
                 {
+                    LOG.info("crypto does not have group:" + crypto);
                     continue;
+                }
+
+                if (group == NamedGroup.P521_MLKEM1024) // hybrid PQC
+                {
+                    return clientShare;
                 }
 
                 if ((NamedGroup.refersToAnECDHCurve(group) && crypto.hasECDHAgreement()) ||
