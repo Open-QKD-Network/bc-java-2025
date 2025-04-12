@@ -140,6 +140,7 @@ public class NamedGroup
         case secp521r1:
         case x25519:
         case x448:
+        case P521_MLKEM1024: // hybrid PQC
             return true;
         }
 

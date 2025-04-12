@@ -423,9 +423,8 @@ public class TlsServerProtocol
             else if (NamedGroup.P521_MLKEM1024 == namedGroup)
             {
                 LOG.info("PQC Hybrid key exchange, crypto:" + crypto);
-                agreement = crypto.createKemDomain(new TlsKemConfig(namedGroup, true)).createKem();
-                //agreement = new org.bouncycastle.tls.crypto.impl.jcajce.JceTlsECDHPQC(
-                //    crypto.createECDomain(new TlsECConfig(NamedGroup.secp521r1)).createECDH(), namedGroup, false);
+                agreement = new org.bouncycastle.tls.crypto.impl.jcajce.JceTlsECDHPQC(
+                    crypto.createECDomain(new TlsECConfig(NamedGroup.secp521r1)).createECDH(), namedGroup, false);
             }
             else
             {

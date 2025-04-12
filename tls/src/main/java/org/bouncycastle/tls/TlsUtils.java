@@ -5399,8 +5399,8 @@ public class TlsUtils
             }
             else if (NamedGroup.P521_MLKEM1024 == supportedGroup) // hybrid-PQC
             {
-                //agreement = new org.bouncycastle.tls.crypto.impl.jcajce.JceTlsECDHPQC(
-                //    crypto.createECDomain(new TlsECConfig(NamedGroup.secp521r1)).createECDH(), supportedGroup, true);
+                agreement = new org.bouncycastle.tls.crypto.impl.jcajce.JceTlsECDHPQC(
+                    crypto.createECDomain(new TlsECConfig(NamedGroup.secp521r1)).createECDH(), supportedGroup, true);
             }
 
             if (null != agreement)
