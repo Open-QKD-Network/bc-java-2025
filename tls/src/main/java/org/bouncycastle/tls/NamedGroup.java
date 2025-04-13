@@ -116,7 +116,7 @@ public class NamedGroup
     public static final int MLKEM768 = 0x0201;
     public static final int MLKEM1024 = 0x0202;
 
-    public static final int P521_MLKEM1024 = 0x2f3d; // secp521r1
+    public static final int P521_MLKEM1024 = 0x2f4d; // secp521r1
 
     /* Names of the actual underlying elliptic curves (not necessarily matching the NamedGroup names). */
     private static final String[] CURVE_NAMES = new String[]{ "sect163k1", "sect163r1", "sect163r2", "sect193r1",
